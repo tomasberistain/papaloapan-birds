@@ -12,7 +12,7 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 
 ## Preguntas de investigación
 
-### Bloque A — Cambio de paisaje
+### Bloque A | Cambio de paisaje
 - ¿Existió cobertura forestal significativa en la cuenca entre 1993 y 2018?
 - ¿Cuánta superficie de selva existía al inicio del período y cuánta queda?
 - ¿Dónde estaba concentrada esa cobertura?
@@ -20,13 +20,13 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 - ¿Qué reemplazó a la selva?
 - ¿Hay zonas que mantuvieron cobertura forestal a lo largo del período?
 
-### Bloque B — Relación paisaje-aves
+### Bloque B | Relación paisaje-aves
 - ¿Qué especies han reducido su área de distribución efectiva en la cuenca?
 - ¿Existe correlación entre pérdida de cobertura y disminución de registros?
 - ¿Hay zonas con mayor resiliencia ecológica?
 - ¿Qué variables predicen mejor la presencia de especies sensibles?
 
-### Bloque C — Modelado predictivo
+### Bloque C | Modelado predictivo
 - ¿Qué zonas tienen mayor probabilidad de albergar especies en riesgo?
 - ¿Qué variables tienen mayor poder predictivo?
 
@@ -41,7 +41,7 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 ## Stack tecnológico
 
 - **Base de datos:** PostgreSQL + PostGIS (Docker)
-- **Análisis:** Python — geopandas, pandas, scikit-learn, statsmodels
+- **Análisis:** Python: geopandas, pandas, scikit-learn, statsmodels
 - **Notebooks:** Jupyter
 - **Dashboard:** PowerBI
 
@@ -67,8 +67,8 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 
 ## Estado del proyecto
 
-🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
-												🚧
- En construcción — Fase 1: Setup técnico        🚧
-												🚧
-🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+	🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+													🚧
+	 En construcción — Fase 1: Setup técnico        🚧
+													🚧
+	🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
