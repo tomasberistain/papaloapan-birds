@@ -72,3 +72,31 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 	 En construcción — Fase 1: Setup técnico        🚧
 													🚧
 	🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+	
+	
+	## Decisiones técnicas
+
+### Sistema de coordenadas
+Todos los datos se reproyectan a **EPSG:4326** (WGS84) como CRS estándar
+del proyecto. Los datos originales de INEGI SIATL vienen en EPSG:4019
+(GRS80), casi idéntico numéricamente pero incompatible con la mayoría
+del ecosistema de herramientas (PostGIS, eBird, GBIF). La reproyección
+garantiza que todas las capas sean compatibles en operaciones espaciales.
+Para cálculos de área o distancia que requieran precisión métrica se
+usará EPSG:6372 (proyección oficial INEGI México).
+
+### Estructura de la cuenca
+La RH-28 se descargó del SIATL de INEGI como 34 subcuencas individuales
+(RH28Aa–RH28Ax, RH28Ba–RH28Bj), cada una en su propio shapefile.
+En el análisis se cargan todas y se disuelven en un polígono único
+para delimitar el área de estudio. Las subcuencas individuales se
+conservan para análisis a nivel local.
+
+### Limitación metodológica: escala de mapeo
+Las Series de Uso de Suelo y Vegetación de INEGI tienen escala 1:250,000
+con unidad mínima de mapeo de ~50 ha para elementos naturales. Esto
+significa que pérdidas de cobertura forestal menores a esa superficie
+no son detectables. La deforestación real es probablemente mayor
+a la que este proyecto puede medir.
+
+El área de estudio corresponde a la Región Hidrológica RH-28, que comprende la cuenca del Río Papaloapan y la cuenca del Río Jamapa y otros afluentes menores.

@@ -7,10 +7,10 @@ data/
 __pycache__/
 *.py[cod]
 *.egg-info/
-.env
-venv/
+# Virtual environment
 .venv/
-
+venv/
+env/
 # Jupyter
 .ipynb_checkpoints/
 
