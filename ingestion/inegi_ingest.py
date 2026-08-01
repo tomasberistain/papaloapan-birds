@@ -10,7 +10,7 @@ Salida: data/processed/cobertura_rh28.gpkg
 from pathlib import Path
 import geopandas as gpd
 import pandas as pd
-from mapeo_cobertura import aplicar_mapeo, aplicar_mapeo_serie_ii, MAPEO_COBERTURA
+from mapeo_cobertura import aplicar_mapeo
 
 
 
@@ -27,46 +27,53 @@ SALIDA        = BASE_PROYECTO / "data/processed/cobertura_rh28.gpkg"
 
 CRS_DESTINO  = "EPSG:4326"
 
+# Umbral máximo tolerado de polígonos sin clasificar (proporción del total)
+UMBRAL_SIN_CLASIFICAR = 0.005  # 0.5%
+
+
 SERIES = {
+    "I":  {
+        "anio_imagen":      1985,
+        "anio_publicacion": 1991,
+        "col_descripcion":  "TIPO",
+        "combinar_otros":   True,
+    },
     "II":  {
-    "anio_imagen":      1993,
-    "anio_publicacion": 2001,
-    "archivos":         [BASE_DATOS / "SERIE II/conjunto_de_datos/us250s2v_lcc.shp"],
-    "col_descripcion":  "TIPO",
-    "funcion_mapeo":    "serie_ii",
+        "anio_imagen":      1993,
+        "anio_publicacion": 2001,
+        "col_descripcion":  "TIPO",
+        "combinar_otros":   True,
     },
     "III": {
-    "anio_imagen":      2002,
-    "anio_publicacion": 2005,
-    "archivos":         [BASE_DATOS / "SERIE III/shp/us250s3v/us250s3v.shp"],
-    "col_descripcion":  "TIP_VEG",
-    "funcion_mapeo":    "serie_ii",
+        "anio_imagen":      2002,
+        "anio_publicacion": 2005,
+        "col_descripcion":  "TIP_VEG",
+        "combinar_otros":   True,
     },
     "IV":  {
-    "anio_imagen":      2007,
-    "anio_publicacion": 2009,
-    "archivos":         [BASE_DATOS / "SERIE IV/shape/us250s4v/us250s4v.shp"],
-    "col_descripcion":  "TIP_VEG",
-    "funcion_mapeo":    "serie_ii",
+        "anio_imagen":      2007,
+        "anio_publicacion": 2009,
+        "col_descripcion":  "TIP_VEG",
+        "combinar_otros":   True,
     },
     "V":   {
-    "anio_imagen":      2011,
-    "anio_publicacion": 2013,
-    "archivos":         [BASE_DATOS / "SERIE V/conjunto_de_datos/CAPAS/usv250s5v/usv250s5v.shp"],
-    "col_descripcion":  "TIP_VEG",
-    "funcion_mapeo":    "serie_ii",
+        "anio_imagen":      2011,
+        "anio_publicacion": 2013,
+        "col_descripcion":  "TIP_VEG",
+        "combinar_otros":   True,
     },
     "VI":  {
         "anio_imagen":      2014,
         "anio_publicacion": 2016,
-        "archivos":         [BASE_DATOS / "SERIE VI/conjunto_de_datos/usv250s6_union.shp"],
-        "col_descripcion":  "DESCRIPCIO",
+        "col_descripcion":  "TIP_VEG",
+        "combinar_otros":   True,
     },
     "VII": {
         "anio_imagen":      2018,
         "anio_publicacion": 2021,
-        "archivos":         [BASE_DATOS / "SERIE VII/conjunto_de_datos/cdv_usuev250sVII_cnal.shp"],
         "col_descripcion":  "DESCRIPCIO",
+        "combinar_otros":   True,
+        "patron_glob":      "*cnal.shp",
     },
 }
 
@@ -91,11 +98,11 @@ def cargar_cuenca():
 
 def procesar_serie(nombre_serie, config, cuenca):
     print(f"\nProcesando Serie {nombre_serie}...")
-    archivos  = config["archivos"]
+    patron = config.get("patron_glob", "*v.shp")
+    archivos = list((BASE_DATOS / f"SERIE {nombre_serie}").glob(patron))
     col_desc  = config["col_descripcion"]
 
-    # 1. Leer y concatenar archivos
-    partes = []
+
     # 1. Leer y concatenar archivos
     partes = []
     for archivo in archivos:
@@ -130,8 +137,8 @@ def procesar_serie(nombre_serie, config, cuenca):
     gdf = gpd.clip(gdf, cuenca)
     print(f"  {len(gdf):,} polígonos tras clip")
 
-    # 4b. Para series II-V: combinar TIP_VEG y OTROS
-    if config.get("funcion_mapeo") == "serie_ii" and "OTROS" in gdf.columns:
+    # 4b. Combinar columna principal con OTROS cuando la principal es "NO APLICABLE"
+    if config.get("combinar_otros") and "OTROS" in gdf.columns:
         def columna_efectiva(row):
             if row[col_desc] == "NO APLICABLE" and row["OTROS"] != "NO APLICABLE":
                 return row["OTROS"]
@@ -142,11 +149,8 @@ def procesar_serie(nombre_serie, config, cuenca):
     else:
         col_desc_mapeo = col_desc
 
-    # 5. Aplicar mapeo de cobertura
-    if config.get("funcion_mapeo") == "serie_ii":
-        mapeo = gdf[col_desc_mapeo].apply(aplicar_mapeo_serie_ii)
-    else:
-        mapeo = gdf[col_desc].apply(aplicar_mapeo)
+    # 5. Aplicar mapeo de cobertura (con fallback interno entre nomenclaturas)
+    mapeo = gdf[col_desc_mapeo].apply(aplicar_mapeo)
     gdf["clase_cobertura"]       = mapeo.apply(lambda x: x[0])
     gdf["tipo_cobertura"]        = mapeo.apply(lambda x: x[1])
     gdf["etapa_sucesional"]      = mapeo.apply(lambda x: x[2])
@@ -191,6 +195,24 @@ def main():
     cobertura = gpd.GeoDataFrame(cobertura, geometry="geometry", crs=CRS_DESTINO)
     print(f"Total polígonos: {len(cobertura):,}")
 
+    # Chequeo global de polígonos sin clasificar
+    n_sin_cls = (cobertura["clase_cobertura"] == "sin_clasificar").sum()
+    if n_sin_cls > 0:
+        proporcion = n_sin_cls / len(cobertura)
+        print(f"\n⚠️  ATENCIÓN: {n_sin_cls:,} polígonos sin clasificar "
+              f"({proporcion:.2%} del total)")
+        if proporcion > UMBRAL_SIN_CLASIFICAR:
+            categorias = sorted(
+                cobertura.loc[cobertura["clase_cobertura"] == "sin_clasificar", "descripcion"]
+                .unique()
+                .tolist()
+            )
+            raise ValueError(
+                f"Demasiados polígonos sin clasificar ({proporcion:.2%} > "
+                f"{UMBRAL_SIN_CLASIFICAR:.2%}). Revisa MAPEO_COBERTURA / "
+                f"MAPEO_SERIE_II para estas categorías: {categorias}"
+            )
+
     # Guardar como GeoPackage
     SALIDA.parent.mkdir(parents=True, exist_ok=True)
     cobertura.to_file(SALIDA, driver="GPKG")
@@ -202,5 +224,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
