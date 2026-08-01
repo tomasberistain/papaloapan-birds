@@ -68,9 +68,9 @@ consecuencias tuvo para la biodiversidad local? ¿Aún vuelan las aves?
 ## Estado del proyecto
 
 	🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
-													🚧
-	 En construcción — Fase 1: Setup técnico        🚧
-													🚧
+	🚧 	   	   									       	🚧
+	🚧 En construcción — Fase 1: Setup técnico          🚧
+	🚧												    🚧
 	🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
 	
 	
